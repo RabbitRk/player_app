@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:player_app/misc/svg.dart';
 import 'package:player_app/misc/colors.dart';
 import 'package:player_app/provider/video_provider.dart';
-import 'package:player_app/view/assets/widgets.dart';
 
 import '../routes.dart';
 
@@ -32,7 +34,6 @@ class _LandingPageState extends State<LandingPage> {
     super.initState();
   }
 
-
   @override
   void dispose() {
     myModel.dispose();
@@ -41,57 +42,59 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.white, //or set color with: Color(0xFF0000FF)
+    ));
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: white,
+        elevation: 0.0,
+        title: Row(
+          children: const [
+            Logo(size: 36,),
+            SizedBox(
+              width: 24.0,
+            ),
+            Text(
+              "Player",
+              style: TextStyle(
+                  color: black,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 28),
+            ),
+            Spacer(),
+            // SvgIcon(
+            //   icon: svg_.settings,
+            //   height: 32,
+            //   width: 32,
+            //   padding: 0,
+            //   radius: 8,
+            //   onTap: () {
+            //     myModel.getHomeDirectory(false);
+            //   },
+            // )
+          ],
+        ),
+        automaticallyImplyLeading: false,
+      ),
       body: SafeArea(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Column(
             children: [
+              const SizedBox(
+                height: 16.0,
+              ),
               Expanded(
                 // flex: 6,
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle, color: accentColor),
-                        ),
-                        const SizedBox(
-                          width: 24.0,
-                        ),
-                        const Text(
-                          "Player",
-                          style: TextStyle(
-                              color: black,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 36),
-                        ),
-                        const Spacer(),
-                        SvgIcon(
-                          icon: svg_.settings,
-                          height: 32,
-                          width: 32,
-                          padding: 0,
-                          radius: 8,
-                          onTap: () {
-                            // Navigator.pushNamed(context, Routes.FolderPage_);
-                            myModel.getHomeDirectory(false);
-                          },
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 30.0,
-                    ),
                     Expanded(
                       child: ChangeNotifierProvider<FolderModel>(
                           create: (context) => myModel,
                           child: Consumer<FolderModel>(
                               builder: (context, myModel, child) {
-                                print(myModel.folders.length);
+
                             return GridView.builder(
                               itemCount: myModel.folder.length,
                               physics: const BouncingScrollPhysics(),
@@ -102,14 +105,99 @@ class _LandingPageState extends State<LandingPage> {
                                       mainAxisSpacing: 4.0),
                               itemBuilder: (BuildContext context, int index) {
                                 Folder single = myModel.folders[index];
-                                return FolderData(
-                                    folder_name: single.folderName!,
-                                    root: single.rootPath!,
-                                    folders: single.dirtCount!
-                                );
+
+return FolderData(
+    folder_name: single.folderName!,
+    root: single.rootPath!,
+    folders: single.dirtCount!
+);
+                                // return newList[index].isVideo ? GestureDetector(
+                                //   onTap: () {
+                                //     Navigator.pushNamed(context, Routes.Player_,
+                                //         arguments: {"url": newList[index].filePath})
+                                //         .whenComplete(() {
+                                //       setState(() {
+                                //         SystemChrome.setPreferredOrientations(
+                                //             [DeviceOrientation.portraitUp]);
+                                //       });
+                                //     });
+                                //   },
+                                //   child: Container(
+                                //     padding: const EdgeInsets.only(bottom: 8.0),
+                                //     child: Row(children: [
+                                //       ClipRRect(
+                                //         borderRadius: BorderRadius.circular(8.0),
+                                //         child: Container(
+                                //           height: 90,
+                                //           width: 160,
+                                //           decoration: BoxDecoration(
+                                //               color: black,
+                                //               borderRadius: BorderRadius.circular(8)),
+                                //           child: Stack(
+                                //             children: [
+                                //               Align(
+                                //                 alignment: Alignment.center,
+                                //                 child: newList[index].thumbnail == null
+                                //                     ? Image.file(File(""))
+                                //                     : Image.file(File(
+                                //                     newList[index].thumbnail ?? "")),
+                                //               ),
+                                //               Align(
+                                //                 alignment: Alignment.topRight,
+                                //                 child: Container(
+                                //                   padding: const EdgeInsets.all(2.0),
+                                //                   margin: const EdgeInsets.all(8.0),
+                                //                   decoration: BoxDecoration(
+                                //                       color: Colors.black26,
+                                //                       borderRadius: BorderRadius.circular(4.0)),
+                                //                   child: Text(
+                                //                     newList[index].duration!,
+                                //                     style: const TextStyle(
+                                //                         fontSize: 12,
+                                //                         fontWeight: FontWeight.w500,
+                                //                         color: white),
+                                //                     maxLines: 2,
+                                //                     overflow: TextOverflow.ellipsis,
+                                //                   ),
+                                //                 ),
+                                //               ),
+                                //             ],
+                                //           ),
+                                //         ),
+                                //       ),
+                                //       const SizedBox(
+                                //         width: 16.0,
+                                //       ),
+                                //       Expanded(
+                                //         child: Column(
+                                //           crossAxisAlignment: CrossAxisAlignment.start,
+                                //           children: [
+                                //             Text(
+                                //               newList[index].fileName,
+                                //               style: const TextStyle(
+                                //                   fontSize: 16, fontWeight: FontWeight.w500),
+                                //               maxLines: 2,
+                                //               overflow: TextOverflow.ellipsis,
+                                //             ),
+                                //             const SizedBox(
+                                //               height: 8.0,
+                                //             ),
+                                //             Text(
+                                //               newList[index].filesize!,
+                                //               style: const TextStyle(
+                                //                   fontSize: 14, fontWeight: FontWeight.w800),
+                                //             ),
+                                //           ],
+                                //         ),
+                                //       )
+                                //     ]),
+                                //   ),
+                                // ) : FolderData(
+                                //     folder_name: newList[index].folderName!,
+                                //     root: newList[index].rootPath!,
+                                //     folders: newList[index].dirtCount!);
                               },
                             );
-
                           })),
                     ),
                   ],
@@ -173,32 +261,27 @@ class _LandingPageState extends State<LandingPage> {
       ),
     );
   }
-
-
 }
 
 class FolderData extends StatelessWidget {
-  final String? folder_name, root;//, files, folders;
+  final String? folder_name, root; //, files, folders;
   final int? folders;
 
   const FolderData(
       {Key? key,
       required this.folder_name,
       required this.root,
-      required this.folders
-      })
+      required this.folders})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Folder fol = Folder(
-      folderName: folder_name,
-      rootPath: root,
-      dirtCount: folders
-    );
+    Folder fol =
+        Folder(folderName: folder_name, rootPath: root, dirtCount: folders);
     return GestureDetector(
-      onTap: (){
-        Navigator.pushNamed(context, Routes.FolderPage_, arguments: {"folderData": fol});
+      onTap: () {
+        Navigator.pushNamed(context, Routes.FolderPage_,
+            arguments: {"folderData": fol});
       },
       child: Container(
         color: Colors.transparent,
@@ -334,6 +417,25 @@ class RecentVideo extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+
+class Logo extends StatelessWidget {
+  final double size;
+
+  const Logo({Key? key, required this.size}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: size,
+      width: size,
+      child: SvgPicture.asset(
+        "asset/logo_trans.svg",
+        width: 56,
+        height: 56,
+      ),
     );
   }
 }

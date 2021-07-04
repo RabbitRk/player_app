@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:better_player/better_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:player_app/misc/colors.dart';
 import 'package:player_app/provider/video_provider.dart';
@@ -27,115 +31,116 @@ class _FolderPageState extends State<FolderPage> {
   @override
   Widget build(BuildContext context) {
     roots.add(widget.folder.rootPath!);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.white, //or set color with: Color(0xFF0000FF)
+    ));
     return Scaffold(
         body: SafeArea(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 52,
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12.withOpacity(0.01),
-                                  offset: const Offset(
-                                    0.0,
-                                    0.0,
-                                  ),
-                                  blurRadius: 4.0,
-                                  spreadRadius: 0.0,
-                                ), //BoxS //BoxShadow
-                              ]),
-                          child: SvgIcon(
-                            icon: svg_.chevron_left,
-                            height: 32,
-                            width: 32,
-                            padding: 4,
-                            size: 14,
-                            color: black,
-                            background: white,
-                            radius: 32,
-                            onTap: () {},
+      padding: EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 52,
+            child: Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12.withOpacity(0.01),
+                          offset: const Offset(
+                            0.0,
+                            0.0,
                           ),
-                        ),
-                        const SizedBox(
-                          width: 24.0,
-                        ),
-                        const Text(
-                          "Player",
-                          style: TextStyle(
-                              color: black,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 24),
-                        ),
-                        const Spacer(),
-                        SvgIcon(
-                          icon: svg_.settings,
-                          height: 32,
-                          width: 32,
-                          padding: 0,
-                          radius: 8,
-                          onTap: () {},
-                        )
-                      ],
-                    ),
+                          blurRadius: 4.0,
+                          spreadRadius: 0.0,
+                        ), //BoxS //BoxShadow
+                      ]),
+                  child: SvgIcon(
+                    icon: svg_.chevron_left,
+                    height: 32,
+                    width: 32,
+                    padding: 4,
+                    size: 14,
+                    color: black,
+                    background: white,
+                    radius: 32,
+                    onTap: () {},
+                  ),
+                ),
+                const SizedBox(
+                  width: 24.0,
+                ),
+                const Text(
+                  "Player",
+                  style: TextStyle(
+                      color: black, fontWeight: FontWeight.w900, fontSize: 24),
+                ),
+                const Spacer(),
+                SvgIcon(
+                  icon: svg_.settings,
+                  height: 32,
+                  width: 32,
+                  padding: 0,
+                  radius: 8,
+                  onTap: () {},
+                )
+              ],
+            ),
+          ),
+          ChangeNotifierProvider<SubFolderModel>(
+              create: (context) => subModel,
+              child:
+                  Consumer<SubFolderModel>(builder: (context, myModel, child) {
+                return FolderDetail(
+                    folder: myModel.folder_element.length.toString(),
+                    file: myModel.file_element.length.toString(),
+                    folder_name: widget.folder.folderName!);
+              })),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: const BoxDecoration(
+                  color: white,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(20))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Files",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: accentColor,
+                        fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(
+                    height: 16.0,
                   ),
                   ChangeNotifierProvider<SubFolderModel>(
                       create: (context) => subModel,
                       child: Consumer<SubFolderModel>(
                           builder: (context, myModel, child) {
-                        return FolderDetail(
-                            folder: myModel.folder_element.length.toString(),
-                            file: myModel.file_element.length.toString(),
-                            folder_name: widget.folder.folderName!);
+                        //Folder and file data
+                        List<Widget> folder =
+                            folder_data(myModel.folder_element);
+                        List<Widget> files = file_data(myModel.file_element);
+
+                        folder.addAll(files);
+
+                        return Expanded(
+                          child: ListView(children: folder),
+                        );
                       })),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: const BoxDecoration(
-                          color: white,
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(20))),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Files",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: accentColor,
-                                fontWeight: FontWeight.w800),
-                          ),
-                          const SizedBox(
-                            height: 16.0,
-                          ),
-                          ChangeNotifierProvider<SubFolderModel>(
-                              create: (context) => subModel,
-                              child: Consumer<SubFolderModel>(
-                                  builder: (context, myModel, child) {
-                                //Folder and file data
-                                List<Widget> folder =
-                                    folder_data(myModel.folder_element);
-                                List<Widget> files = file_data(myModel.file_element);
-
-                                folder.addAll(files);
-
-                                return Expanded(
-                                  child: ListView(children: folder),
-                                );
-                              })),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
-            )));
+            ),
+          ),
+        ],
+      ),
+    )));
   }
 
   List<Widget> folder_data(List<FolderElement> folder) {
@@ -143,9 +148,9 @@ class _FolderPageState extends State<FolderPage> {
         folder.length,
         (index) => GestureDetector(
               onTap: () {
-                  roots.add(folder[index].rootPath!);
-                  subModel.getSubDirectory(false, folder[index].rootPath!);
-                  },
+                roots.add(folder[index].rootPath!);
+                subModel.getSubDirectory(false, folder[index].rootPath!);
+              },
               child: Container(
                 color: white,
                 padding: const EdgeInsets.only(bottom: 8.0),
@@ -174,44 +179,61 @@ class _FolderPageState extends State<FolderPage> {
   }
 
   List<Widget> file_data(List<FileElement> folder_element) {
+    var asset;
     return List.generate(
         folder_element.length,
         (index) => GestureDetector(
-          onTap: (){
-             Navigator.pushNamed(context, Routes.Player_, arguments: {"url": folder_element[index].filePath});
-          },
-          child: Container(
+              onTap: () {
+                Navigator.pushNamed(context, Routes.Player_,
+                        arguments: {"url": folder_element[index].filePath})
+                    .whenComplete(() {
+                  setState(() {
+                    SystemChrome.setPreferredOrientations(
+                        [DeviceOrientation.portraitUp]);
+                  });
+                });
+              },
+              child: Container(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(children: [
-                  Container(
-                    height: 90,
-                    width: 160,
-                    decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: Container(
-                            padding: const EdgeInsets.all(2.0),
-                            margin: const EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                                color: Colors.black26,
-                                borderRadius: BorderRadius.circular(4.0)),
-                            child: Text(
-                              folder_element[index].duration!,
-                              style: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500, color: white),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Container(
+                      height: 90,
+                      width: 160,
+                      decoration: BoxDecoration(
+                          color: black,
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: folder_element[index].thumbnail == null
+                                ? Image.file(File(""))
+                                : Image.file(File(
+                                    folder_element[index].thumbnail ?? "")),
+                          ),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              padding: const EdgeInsets.all(2.0),
+                              margin: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                  color: Colors.black26,
+                                  borderRadius: BorderRadius.circular(4.0)),
+                              child: Text(
+                                folder_element[index].duration!,
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: white),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
-                        ),
-                        Align(
-                          alignment: Alignment.center,
-                            child: Image.asset("asset/saly.png")),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -241,7 +263,7 @@ class _FolderPageState extends State<FolderPage> {
                   )
                 ]),
               ),
-        ));
+            ));
   }
 
   @override

@@ -1,17 +1,23 @@
 import 'dart:async';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:player_app/view/landing_page.dart';
 import 'misc/colors.dart';
 import 'package:player_app/routes.dart';
 import 'misc/size_config.dart';
 
-void main() {
-  runApp(const MyApp());
+List<CameraDescription> cameras = [];
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
+  runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -25,10 +31,8 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             onGenerateRoute: Routes.generateRoute,
-            themeMode: ThemeMode.dark,
             theme: ThemeData(
               primarySwatch: Colors.deepOrange,
-              brightness: Brightness.light,
               primaryColor: Colors.deepOrange,
               canvasColor: scaffoldBackground,
               fontFamily: "RedHatDisplay",
@@ -70,41 +74,31 @@ class _SplashScreenState extends State<SplashScreen> {
     if (status.isGranted) {
       Navigator.pushNamed(context, Routes.LandingPage_);
     } else {
-      //Dialogs.showToast('Please grant storage permissions');
+      //Dialog
     }
   }
 
   @override
   void initState() {
     super.initState();
-    // SystemChrome.setEnabledSystemUIOverlays([]);
     startTimeout();
-    // SchedulerBinding.instance!.addPostFrameCallback((_) {
-    //   SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-    //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    //     statusBarColor: scaffoldBackground,
-    //     systemNavigationBarColor: scaffoldBackground,
-    //     statusBarIconBrightness: Brightness.dark
-    //     // Theme.of(context).primaryColor == ThemeConfig.darkTheme.primaryColor
-    //     //     ? Brightness.light
-    //     //     : Brightness.dark,
-    //   ));
-    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: scaffoldBackground,
-        statusBarIconBrightness: Brightness.light));
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.white, //or set color with: Color(0xFF0000FF)
+    ));
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FlutterLogo(),
-            Text("Player", style: TextStyle(color: Colors.black,fontWeight: FontWeight.w800, fontSize: 36),),
-          ],
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Logo(size: 80,),
+              Text("Player", style: TextStyle(color: Colors.black,fontWeight: FontWeight.w800, fontSize: 36),),
+            ],
+          ),
         ),
       ),
     );

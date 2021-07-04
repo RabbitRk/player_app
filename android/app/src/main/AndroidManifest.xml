@@ -10,7 +10,7 @@
    <application
         android:label="player_app"
        android:requestLegacyExternalStorage="true"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/logo_trans">
         <activity
             android:name=".MainActivity"
             android:configChanges=

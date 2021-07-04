@@ -33,6 +33,8 @@ dependencies:
   provider: ^5.0.0
   shared_preferences: ^2.0.5
   dio: ^4.0.0
+  google_ml_kit: ^0.6.0
+  camera: ^0.8.1+3
   animate_do: ^2.0.0
   flutter_svg: ^0.22.0
   animations: ^2.0.0
